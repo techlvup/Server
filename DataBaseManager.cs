@@ -4,14 +4,39 @@
 
 namespace Server
 {
-    class DataBaseManager
+    class DataBaseManager : Singleton<DataBaseManager>
     {
-        private static string username = "root"; // 用户名
-        private static string password = "149630764"; // 密码
+        private const string m_username = "root"; // 用户名
+        private const string m_password = "149630764"; // 密码
 
 
 
-        public static void InsertData(string databaseName, string tableName, string columnName, string columnType, string value)
+        public void SetDataBase(string operation, string value, int count)
+        {
+            if (operation == "insert")
+            {
+                InsertData("databaseName", "tableName", "columnName", "varchar(100)", value);
+            }
+            else if (operation == "delete")
+            {
+                DeleteData("databaseName", "tableName", "columnName", count);
+            }
+            else if (operation == "update")
+            {
+                UpdateData("databaseName", "tableName", "columnName", count, value);
+            }
+            else if (operation == "select")
+            {
+                SelectData("databaseName", "tableName", out Dictionary<int, string> rowsData, out Dictionary<string, string> columnsData, out string singleData, "columnName", count);
+                Console.WriteLine($"查找到的数据是：{singleData}");
+            }
+            else if (operation == "close")
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        private void InsertData(string databaseName, string tableName, string columnName, string columnType, string value)
         {
             bool isExistsDataBase = JudgeIsExists(databaseName);
 
@@ -35,7 +60,7 @@ namespace Server
               Database=yourdatabasename：指定要连接的数据库名称，您需要将 "yourdatabasename" 替换为实际存在的数据库名称。
               SslMode=Required：指定连接数据库时需要使用 SSL 加密，确保数据传输的安全性。
             */
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -64,7 +89,7 @@ namespace Server
             }
         }
 
-        public static void DeleteData(string databaseName, string tableName, string columnName = "", int primaryKeyValue = -1)
+        private void DeleteData(string databaseName, string tableName, string columnName = "", int primaryKeyValue = -1)
         {
             bool isExistsColumn = JudgeIsExists(databaseName, tableName, columnName);
 
@@ -73,7 +98,7 @@ namespace Server
                 return;
             }
 
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -117,7 +142,7 @@ namespace Server
             }
         }
 
-        public static void UpdateData(string databaseName, string tableName, string columnName, int primaryKeyValue, string value)
+        private void UpdateData(string databaseName, string tableName, string columnName, int primaryKeyValue, string value)
         {
             bool isExistsColumn = JudgeIsExists(databaseName, tableName, columnName);
 
@@ -126,7 +151,7 @@ namespace Server
                 return;
             }
 
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -146,7 +171,7 @@ namespace Server
             }
         }
 
-        public static void SelectData(string databaseName, string tableName, out Dictionary<int, string> rowsData, out Dictionary<string, string> columnsData, out string singleData, string columnName = "", int primaryKeyValue = -1)
+        private void SelectData(string databaseName, string tableName, out Dictionary<int, string> rowsData, out Dictionary<string, string> columnsData, out string singleData, string columnName = "", int primaryKeyValue = -1)
         {
             rowsData = new Dictionary<int, string>();
             columnsData = new Dictionary<string, string>();
@@ -156,7 +181,7 @@ namespace Server
 
             if (isExistsColumn)
             {
-                string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+                string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
@@ -225,9 +250,9 @@ namespace Server
             }
         }
 
-        public static void CreateDatabase(string databaseName)
+        private void CreateDatabase(string databaseName)
         {
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};SslMode=Required";
 
             // 创建数据库连接对象
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -247,9 +272,9 @@ namespace Server
             }
         }
 
-        public static void DeleteDatabase(string databaseName)
+        private void DeleteDatabase(string databaseName)
         {
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};SslMode=Required";
 
             // 创建数据库连接对象
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -269,9 +294,9 @@ namespace Server
             }
         }
 
-        public static void CreateTable(string databaseName, string tableName)
+        private void CreateTable(string databaseName, string tableName)
         {
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -287,9 +312,9 @@ namespace Server
             }
         }
 
-        public static void DeleteTable(string databaseName, string tableName)
+        private void DeleteTable(string databaseName, string tableName)
         {
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -305,11 +330,11 @@ namespace Server
             }
         }
 
-        private static bool JudgeDataBaseIsExists(string databaseName)
+        private bool JudgeDataBaseIsExists(string databaseName)
         {
             bool isExists = false;
 
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};SslMode=Required";
 
             // 创建连接对象
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -331,11 +356,11 @@ namespace Server
             return isExists;
         }
 
-        private static bool JudgeTableIsExists(string databaseName, string tableName)
+        private bool JudgeTableIsExists(string databaseName, string tableName)
         {
             bool isExists = false;
 
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             // 创建连接对象
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -357,11 +382,11 @@ namespace Server
             return isExists;
         }
 
-        private static bool JudgeColumnIsExists(string databaseName, string tableName, string columnName)
+        private bool JudgeColumnIsExists(string databaseName, string tableName, string columnName)
         {
             bool isExists = false;
 
-            string connectionString = $"Server=localhost;Port=3306;Uid={username};Pwd={password};Database={databaseName};SslMode=Required";
+            string connectionString = $"Server=localhost;Port=3306;Uid={m_username};Pwd={m_password};Database={databaseName};SslMode=Required";
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -381,7 +406,7 @@ namespace Server
             return isExists;
         }
 
-        private static bool JudgeIsExists(string databaseName, string tableName = "", string columnName = "")
+        private bool JudgeIsExists(string databaseName, string tableName = "", string columnName = "")
         {
             bool isExists = true;
 
