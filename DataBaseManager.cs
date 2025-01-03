@@ -6,8 +6,8 @@ namespace Server
 {
     class DataBaseManager : Singleton<DataBaseManager>
     {
-        private const string m_username = "root"; // 用户名
-        private const string m_password = "149630764"; // 密码
+        private const string m_username = ""; // 用户名，默认root
+        private const string m_password = ""; // 密码
 
 
 
